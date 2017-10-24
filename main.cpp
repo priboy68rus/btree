@@ -1,7 +1,9 @@
 #include "btree.h"
 #include <iostream>
+#include "stdio.h"
 
 int main() {
-	std::cout << "hello world" << std::endl;
+	BTree<int> * tree = new BTree<int>();
+	delete tree;
 	return 0;
 }
