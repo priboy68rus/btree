@@ -3,7 +3,7 @@
 #include "stdio.h"
 
 int main() {
-	BTree<int> * tree = new BTree<int>();
+	BTree<int> * tree = new BTree<int>(3);
 	delete tree;
 	return 0;
 }
