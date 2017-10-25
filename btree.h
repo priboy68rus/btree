@@ -257,7 +257,7 @@ TMPL void BTree<Key>::removeFindNext(BNode * n, Key key) {
 	if (n->c[i]->n > t - 1) {
 		removeRecursive(n->c[i], key);
 	} else {
-		if (i < n->n - 2 && n->c[i + 1]->n > t - 1) {
+		if (i < n->n && n->c[i + 1]->n > t - 1) {
 			l = n->c[i];
 			r = n->c[i + 1];
 			l->keys[l->n] = n->keys[i];
@@ -287,28 +287,28 @@ TMPL void BTree<Key>::removeFindNext(BNode * n, Key key) {
 			removeRecursive(r, key);
 		} else {
 			if (i > 0) {
-				r = n->c[i];
-				l = n->c[i - 1];
-			} else {
-				l = n->c[i];
-				r = n->c[i + 1];
+				i--;
 			}
+			l = n->c[i];
+			r = n->c[i + 1];
 
-			r->n = 2 * t - 1;
-			r->keys[t - 1] = n->keys[i];
+			l->n = 2 * t - 1;
+			l->keys[t - 1] = n->keys[i];
 			for (int j = 0; j < t - 1; j++) {
-				r->keys[t + j] = l->keys[j];
-				r->c[t + j] = l->c[j];
+				l->keys[t + j] = r->keys[j];
+				l->c[t + j] = r->c[j];
 			}
-			r->c[2 * t] = l->c[t];
+			l->c[2 * t] = r->c[t];
 
-			delete l;
+
+			delete r;
 			for (int j = i; j < n->n - 1; j++) {
 				n->keys[j] = n->keys[j + 1];
 				n->c[j + 1] = n->c[j + 2];
 			}
 			n->n--;
-			removeRecursive(r, key);
+
+			removeRecursive(l, key);
 		}
 	}
 }
