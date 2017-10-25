@@ -26,11 +26,12 @@ TMPL class BTree {
 		void insertFullRoot(Key key);
 		void insertNonFull(BNode * n, Key key);
 		void splitChild(BNode * n, int i);
+		void printTree(BNode * n);
 
 	public:
 		BTree(int t) { root = NULL; this->t = t;};
 		~BTree();
-		void printTree(BNode * n);
+		void print();
 		void insert(Key key);
 };
 
@@ -43,9 +44,10 @@ TMPL BTree<Key>::~BTree() {
 
 TMPL void BTree<Key>::destroyTree(BTree<Key>::BNode * n) {
 	if (n == NULL) return;
-	for (int i = 0; i < n->n; i++) {
-		if (n->c[i] != NULL)
+	if (!n->isLeaf) {
+		for (int i = 0; i < n->n; i++) {
 			destroyTree(n->c[i]);
+		}
 	}
 	if (n != NULL) delete n;
 }
@@ -63,6 +65,10 @@ TMPL BTree<Key>::BNode::~BNode() {
 
 // Printing tree in ascending order
 
+TMPL void BTree<Key>::print() {
+	printTree(root);
+}
+
 TMPL void BTree<Key>::printTree(BNode * n) {
 	if (n == NULL) return;
 	for (int i = 0; i < n->n; i++) {
@@ -79,7 +85,12 @@ TMPL void BTree<Key>::printTree(BNode * n) {
 // Insertion
 
 TMPL void BTree<Key>::insert(Key key) {
-	if (root->n == 2 * t - 1) {
+	if (root == NULL) {
+		root = new BNode(t);
+		root->keys[0] = key;
+		root->n = 1;
+		root->isLeaf = true;
+	} else if (root->n == 2 * t - 1) {
 		insertFullRoot(key);
 	} else {
 		insertNonFull(root, key);
@@ -98,7 +109,7 @@ TMPL void BTree<Key>::insertFullRoot(Key key) {
 }
 
 TMPL void BTree<Key>::splitChild(BNode * n, int i) {
-	if (n->c[i]->n == 2 * t - 1) 
+	if (n->c[i]->n != 2 * t - 1) 
 		return;
 	BNode * m = n->c[i];
 	BNode * l = new BNode(t);
@@ -109,7 +120,7 @@ TMPL void BTree<Key>::splitChild(BNode * n, int i) {
 		l->keys[j] = m->keys[j + t];
 	}
 	if (!m->isLeaf) {
-		for (int j = 0; j < t - 1; j++) {
+		for (int j = 0; j < t; j++) {
 			l->c[j] = m->c[j + t];
 		}
 	}
@@ -122,7 +133,7 @@ TMPL void BTree<Key>::splitChild(BNode * n, int i) {
 	for (int j = n->n - 1; j >= i; j--) {
 		n->keys[j + 1] = n->keys[j];
 	}
-	n->keys[i] = l->keys[t];
+	n->keys[i] = m->keys[t - 1];
 	n->n++;
 }
 
@@ -142,9 +153,9 @@ TMPL void BTree<Key>::insertNonFull(BNode * n, Key key) {
 		i++;
 		if (n->c[i]->n == 2 * t - 1) {
 			splitChild(n, i);
+			if (key > n->keys[i])
+				i++;
 		}
-		if (key > n->c[i])
-			i++;
 		insertNonFull(n->c[i], key);
 	}
 }
